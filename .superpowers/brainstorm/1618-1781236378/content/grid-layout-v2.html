@@ -1,0 +1,150 @@
+<style>
+  .mock-canvas {
+    width: 100%;
+    aspect-ratio: 16/10;
+    border-radius: 10px;
+    background: #f1f3f5;
+    position: relative;
+    overflow: hidden;
+  }
+  .layout-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .note {
+    font-size: 12px;
+    color: #868e96;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .subtitle { margin-bottom: 8px; }
+</style>
+
+<h2>菱形网格 · 自然化变体</h2>
+<p class="subtitle">基础：菱形网格 (A)。在此基础上加入 <strong>不规则的倾角变化</strong>，让森林看起来自然而非机械。</p>
+
+<div class="layout-row">
+  <!-- V1: Pure rigid diamond -->
+  <div style="border:1.5px solid #dee2e6; border-radius:10px; padding:12px; background:#fafafa;">
+    <h3 style="margin:0 0 4px 0; font-size:14px;">❌ 太机械：纯菱形</h3>
+    <div class="mock-canvas" style="aspect-ratio:16/10;">
+      <svg width="100%" height="100%" viewBox="0 0 500 320">
+        <rect x="0" y="0" width="500" height="320" fill="#f0f5ff"/>
+        <polygon points="250,50 480,180 250,310 20,180" fill="#d4edda" stroke="#81c784" stroke-width="1.5"/>
+        <!-- Perfectly straight, evenly spaced grid -->
+        <line x1="250" y1="50" x2="250" y2="310" stroke="#a8d5ad" stroke-width="1"/>
+        <line x1="20" y1="180" x2="480" y2="180" stroke="#a8d5ad" stroke-width="1"/>
+        <line x1="135" y1="115" x2="365" y2="245" stroke="#a8d5ad" stroke-width="0.8"/>
+        <line x1="365" y1="115" x2="135" y2="245" stroke="#a8d5ad" stroke-width="0.8"/>
+        <line x1="77" y1="147" x2="423" y2="213" stroke="#a8d5ad" stroke-width="0.8"/>
+        <line x1="77" y1="213" x2="423" y2="147" stroke="#a8d5ad" stroke-width="0.8"/>
+        <!-- Trees rigidly on intersections -->
+        <polygon points="250,165 243,185 257,185" fill="#40c057"/><rect x="249" y="165" width="2" height="22" fill="#6d4c41"/>
+        <polygon points="250,130 242,148 258,148" fill="#40c057"/><rect x="249" y="130" width="2" height="20" fill="#6d4c41"/>
+        <polygon points="135,180 127,198 143,198" fill="#74b816"/><rect x="134" y="180" width="2" height="20" fill="#6d4c41"/>
+        <polygon points="365,180 357,198 373,198" fill="#f59f00"/><rect x="364" y="180" width="2" height="20" fill="#6d4c41"/>
+        <polygon points="192,200 184,216 200,216" fill="#74b816"/><rect x="191" y="200" width="2" height="18" fill="#6d4c41"/>
+        <polygon points="308,160 300,176 316,176" fill="#40c057"/><rect x="307" y="160" width="2" height="18" fill="#6d4c41"/>
+        <text x="250" y="300" text-anchor="middle" font-size="11" fill="#868e96">间距均匀·角度固定·交点精确</text>
+      </svg>
+    </div>
+    <div class="note">每棵树精确在网格交点上。网格间距、角度完全一致——看起来像棋盘。</div>
+  </div>
+
+  <!-- V2: Soft organic diamond -->
+  <div style="border:2.5px solid #2f9e44; border-radius:10px; padding:12px; background:#f6fff6;">
+    <h3 style="margin:0 0 4px 0; font-size:14px; color:#2f9e44;">✅ 自然菱形网格</h3>
+    <div class="mock-canvas" style="aspect-ratio:16/10;">
+      <svg width="100%" height="100%" viewBox="0 0 500 320">
+        <rect x="0" y="0" width="500" height="320" fill="#f0f5ff"/>
+        <!-- Slightly irregular ground plane -->
+        <polygon points="250,55 475,185 248,315 22,183" fill="#d4edda" stroke="#81c784" stroke-width="1.2"/>
+        <!-- Irregular grid lines with subtle curves -->
+        <path d="M250,55 Q248,180 250,315" stroke="#a8d5ad" stroke-width="0.8" fill="none"/>
+        <path d="M22,183 Q250,180 475,185" stroke="#a8d5ad" stroke-width="0.8" fill="none"/>
+        <path d="M136,116 Q250,180 365,248" stroke="#a8d5ad" stroke-width="0.6" fill="none"/>
+        <path d="M365,116 Q250,180 132,250" stroke="#a8d5ad" stroke-width="0.6" fill="none"/>
+        <path d="M80,148 Q250,180 418,218" stroke="#a8d5ad" stroke-width="0.6" fill="none"/>
+        <path d="M420,148 Q250,180 77,220" stroke="#a8d5ad" stroke-width="0.6" fill="none"/>
+        <!-- Trees with slight offsets from grid intersections -->
+        <polygon points="244,170 237,188 253,188" fill="#40c057"/><rect x="243" y="170" width="2" height="22" fill="#6d4c41"/>
+        <polygon points="255,132 248,150 264,150" fill="#40c057"/><rect x="254" y="132" width="2" height="21" fill="#6d4c41"/>
+        <polygon points="142,178 135,196 149,196" fill="#74b816"/><rect x="141" y="178" width="2" height="20" fill="#6d4c41"/>
+        <polygon points="358,185 351,202 365,202" fill="#f59f00"/><rect x="357" y="185" width="2" height="19" fill="#6d4c41"/>
+        <polygon points="188,202 182,218 194,218" fill="#74b816"/><rect x="187" y="202" width="2" height="18" fill="#6d4c41"/>
+        <polygon points="306,158 300,174 312,174" fill="#40c057"/><rect x="305" y="158" width="2" height="17" fill="#6d4c41"/>
+        <polygon points="118,218 112,233 124,233" fill="#adb5bd"/><rect x="117" y="218" width="2" height="14" fill="#6d4c41"/>
+        <polygon points="380,220 374,235 386,235" fill="#74b816"/><rect x="379" y="220" width="2" height="16" fill="#6d4c41"/>
+        <!-- Additional trees between grid lines (natural looking) -->
+        <polygon points="312,195 305,212 319,212" fill="#94d82d"/><rect x="311" y="195" width="1.5" height="17" fill="#6d4c41"/>
+        <polygon points="170,158 164,173 176,173" fill="#2f9e44"/><rect x="169" y="158" width="1.5" height="16" fill="#6d4c41"/>
+        <text x="250" y="302" text-anchor="middle" font-size="11" fill="#868e96">±5-8px偏移 · 曲线网格 · 自然密度变化</text>
+      </svg>
+    </div>
+    <div class="note"><strong>推荐方案：</strong>菱形网格做骨架，但每个交叉点允许 ±5-8px 随机偏移，网格线带微弧。部分区域更密（大 tag 聚集区），部分更疏。</div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 20px;">
+  <h3>倾角变化细节</h3>
+  <div class="layout-row">
+    <div style="border:1.5px solid #dee2e6; border-radius:10px; padding:12px; background:#fafafa;">
+      <h3 style="margin:0 0 4px 0; font-size:14px;">网格参数可调</h3>
+      <div class="mock-canvas" style="aspect-ratio:16/9;">
+        <svg width="100%" height="100%" viewBox="0 0 500 250">
+          <rect x="0" y="0" width="500" height="250" fill="#f0f5ff"/>
+          <polygon points="250,40 460,160 250,235 40,160" fill="#d4edda" stroke="#81c784" stroke-width="1.2"/>
+          <!-- Different tilt angles per cell -->
+          <path d="M250,40 Q255,130 250,235" stroke="#a8d5ad" stroke-width="0.8" fill="none"/>
+          <path d="M40,160 Q250,150 460,160" stroke="#a8d5ad" stroke-width="0.8" fill="none"/>
+          <path d="M145,100 Q250,150 355,200" stroke="#a8d5ad" stroke-width="0.5" fill="none"/>
+          <path d="M355,100 Q250,160 145,202" stroke="#a8d5ad" stroke-width="0.5" fill="none"/>
+          <path d="M92,130 Q250,152 408,190" stroke="#a8d5ad" stroke-width="0.5" fill="none"/>
+          <path d="M408,130 Q250,162 92,195" stroke="#a8d5ad" stroke-width="0.5" fill="none"/>
+          <!-- Annotate angles -->
+          <text x="210" y="120" fill="#868e96" font-size="10">倾角</text>
+          <text x="215" y="132" fill="#e8590c" font-size="11" font-weight="bold">~38°</text>
+          <text x="290" y="198" fill="#868e96" font-size="10">↘</text>
+          <text x="300" y="210" fill="#e8590c" font-size="11" font-weight="bold">~52°</text>
+          <text x="170" y="230" fill="#868e96" font-size="10">↙</text>
+          <text x="182" y="243" fill="#e8590c" font-size="11" font-weight="bold">~42°</text>
+          <!-- Arrow indicators -->
+          <line x1="250" y1="90" x2="250" y2="150" stroke="#e8590c" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="250" y1="150" x2="330" y2="150" stroke="#e8590c" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        </svg>
+      </div>
+      <div class="note">每个菱形的倾角可在 <strong>35°-55°</strong> 范围内随机变化，避免全局统一角度。不同区域（上方 vs 侧方）倾角不同 = 更自然。</div>
+    </div>
+    <div style="border:1.5px solid #dee2e6; border-radius:10px; padding:12px; background:#fafafa;">
+      <h3 style="margin:0 0 4px 0; font-size:14px;">树放置规则</h3>
+      <div class="mock-canvas" style="aspect-ratio:16/9;">
+        <svg width="100%" height="100%" viewBox="0 0 500 250">
+          <rect x="0" y="0" width="500" height="250" fill="#f0f5ff"/>
+          <polygon points="250,50 460,165 250,230 40,165" fill="#d4edda" stroke="#81c784" stroke-width="1"/>
+          <!-- Grid dots -->
+          <circle cx="250" cy="140" r="3" fill="#2f9e44"/>
+          <circle cx="250" cy="165" r="3" fill="#2f9e44"/>
+          <circle cx="250" cy="190" r="3" fill="#2f9e44"/>
+          <circle cx="210" cy="155" r="3" fill="#2f9e44"/>
+          <circle cx="290" cy="155" r="3" fill="#2f9e44"/>
+          <circle cx="170" cy="170" r="3" fill="#2f9e44"/>
+          <circle cx="330" cy="170" r="3" fill="#2f9e44"/>
+          <!-- Allowable radius circles -->
+          <circle cx="250" cy="140" r="10" fill="none" stroke="#f59f00" stroke-width="1" stroke-dasharray="3" opacity="0.6"/>
+          <circle cx="290" cy="155" r="10" fill="none" stroke="#f59f00" stroke-width="1" stroke-dasharray="3" opacity="0.6"/>
+          <circle cx="210" cy="155" r="10" fill="none" stroke="#f59f00" stroke-width="1" stroke-dasharray="3" opacity="0.6"/>
+          <!-- Tree offset from grid -->
+          <polygon points="247,135 240,153 254,153" fill="#40c057"/><rect x="246" y="135" width="1.5" height="18" fill="#6d4c41"/>
+          <polygon points="293,152 287,168 299,168" fill="#74b816"/><rect x="292" y="152" width="1.5" height="17" fill="#6d4c41"/>
+          <polygon points="205,158 199,173 211,173" fill="#f59f00"/><rect x="204" y="158" width="1.5" height="16" fill="#6d4c41"/>
+          <!-- Annotation -->
+          <text x="250" y="215" text-anchor="middle" font-size="11" fill="#868e96">树在网格交点±8px可移动范围</text>
+          <line x1="250" y1="140" x2="258" y2="137" stroke="#e8590c" stroke-width="0.8"/>
+        </svg>
+      </div>
+      <div class="note">每棵树的锚点 = 最近网格交点 + 随机偏移 (≤8px)。<br>拖拽时树吸附到最近格点。</div>
+    </div>
+  </div>
+</div>
