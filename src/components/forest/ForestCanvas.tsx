@@ -1,95 +1,76 @@
+// src/components/forest/ForestCanvas.tsx
 import { useEffect, useRef, useCallback } from "react";
 import * as d3 from "d3";
-import type { ForestGraph } from "../../db/client";
+import type { ForestGraph, ForestNode } from "../../db/client";
+import {
+  drawTree,
+  drawVine,
+  drawGround,
+  drawSky,
+  crownRadius,
+  hitTest,
+  hashSeed,
+} from "./treeRenderer";
 
-/** D3 requires x, y, fx, fy; extend the base type */
-interface SimNode extends d3.SimulationNodeDatum {
-  id: string;
-  label: string;
-  noteCount: number;
-  health: number;
-  status: string;
-  size: number;
-  readCount30d: number;
-  updateCount30d: number;
-  lastActiveAt: string | null;
-  staleDays: number;
-}
+interface SimNode extends d3.SimulationNodeDatum, ForestNode {}
 
 interface SimEdge extends d3.SimulationLinkDatum<SimNode> {
-  source: string;
-  target: string;
   weight: number;
 }
 
 interface Props {
-  graph: ForestGraph | null;
+  graph: ForestGraph;
   onNodeClick: (nodeId: string) => void;
   selectedNodeId: string | null;
 }
 
-/** Map tree status to fill color */
-function statusColor(status: string): string {
-  switch (status) {
-    case "healthy":
-      return "#2f9e44";
-    case "normal":
-      return "#74b816";
-    case "stale":
-      return "#f59f00";
-    case "dormant":
-      return "#adb5bd";
-    default:
-      return "#868e96";
-  }
-}
-
-/** Map noteCount to pixel radius */
-function nodeRadius(noteCount: number): number {
-  const minR = 16;
-  const maxR = 72;
-  const size = Math.log1p(noteCount);
-  const maxSize = Math.log1p(100);
-  return minR + (size / maxSize) * (maxR - minR);
-}
+const GROUND_RATIO = 0.85;
 
 export function ForestCanvas({ graph, onNodeClick, selectedNodeId }: Props) {
-  const svgRef = useRef<SVGSVGElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const simRef = useRef<d3.Simulation<SimNode, SimEdge> | null>(null);
+  const nodesRef = useRef<SimNode[]>([]);
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const draggingRef = useRef<SimNode | null>(null);
 
-  const renderForest = useCallback(() => {
-    const svgEl = svgRef.current;
-    if (!svgEl || !graph || graph.nodes.length === 0) {
-      // Clear SVG
-      if (svgEl) {
-        d3.select(svgEl).selectAll("*").remove();
-      }
-      return;
+  // Main render + simulation setup
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    if (simRef.current) {
+      simRef.current.stop();
+      simRef.current = null;
     }
 
-    const svg = d3.select(svgEl);
-    svg.selectAll("*").remove();
+    const ctx = canvas.getContext("2d")!;
+    const container = canvas.parentElement!;
+    const rect = container.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
 
-    const container = svgEl.parentElement!;
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + "px";
+    canvas.style.height = rect.height + "px";
+    ctx.scale(dpr, dpr);
 
-    svg.attr("viewBox", [0, 0, width, height]);
+    const w = rect.width;
+    const h = rect.height;
+    const groundY = h * GROUND_RATIO;
 
-    // Prepare data — cast to SimNode/SimEdge for D3
-    const nodes: SimNode[] = graph.nodes.map((n) => ({ ...n }));
+    const nodes: SimNode[] = graph.nodes.map((n) => ({
+      ...n,
+      x: w / 2 + (Math.random() - 0.5) * 100,
+      y: groundY - crownRadius(n.noteCount) - Math.random() * 200,
+    }));
+    nodesRef.current = nodes;
+
     const edges: SimEdge[] = graph.edges.map((e) => ({
       source: e.source,
       target: e.target,
       weight: e.weight,
     }));
 
-    // Edge color
-    const edgeColor = (weight: number) => {
-      const alpha = Math.min(0.6, 0.1 + weight / 20);
-      return `rgba(107, 114, 128, ${alpha})`;
-    };
-
-    // Create simulation
     const simulation = d3
       .forceSimulation<SimNode>(nodes)
       .force(
@@ -97,146 +78,218 @@ export function ForestCanvas({ graph, onNodeClick, selectedNodeId }: Props) {
         d3
           .forceLink<SimNode, SimEdge>(edges)
           .id((d) => d.id)
-          .distance((d) => Math.max(40, 220 - d.weight * 12)),
+          .distance((d) => Math.max(60, 250 - d.weight * 15)),
       )
-      .force("charge", d3.forceManyBody<SimNode>().strength(-300))
+      .force("charge", d3.forceManyBody<SimNode>().strength(-400))
       .force(
         "collision",
-        d3.forceCollide<SimNode>().radius((d) => nodeRadius(d.noteCount) + 4),
-      )
-      .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("x", d3.forceX<SimNode>(width / 2).strength(0.05))
-      .force("y", d3.forceY<SimNode>(height / 2).strength(0.05));
-
-    // Draw edges (vines)
-    const linkGroup = svg.append("g").attr("class", "links");
-
-    const link = linkGroup
-      .selectAll<SVGLineElement, SimEdge>("line")
-      .data(edges)
-      .join("line")
-      .attr("stroke", (d) => edgeColor(d.weight))
-      .attr("stroke-width", (d) => 1 + Math.log1p(d.weight))
-      .attr("stroke-linecap", "round");
-
-    // Draw nodes (trees)
-    const nodeGroup = svg.append("g").attr("class", "nodes");
-
-    const node = nodeGroup
-      .selectAll<SVGGElement, SimNode>("g")
-      .data(nodes)
-      .join("g")
-      .attr("cursor", "pointer")
-      .call(
         d3
-          .drag<SVGGElement, SimNode>()
-          .on("start", (event, d) => {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-          })
-          .on("drag", (event, d) => {
-            d.fx = event.x;
-            d.fy = event.y;
-          })
-          .on("end", (event, d) => {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-          }),
+          .forceCollide<SimNode>()
+          .radius((d) => crownRadius(d.noteCount) + 12),
       )
-      .on("click", (_event, d) => onNodeClick(d.id));
-
-    // Node circle
-    node
-      .append("circle")
-      .attr("r", (d) => nodeRadius(d.noteCount))
-      .attr("fill", (d) => statusColor(d.status))
-      .attr("opacity", (d) => 0.5 + 0.5 * d.health)
-      .attr("stroke", (d) =>
-        d.id === selectedNodeId ? "#212529" : statusColor(d.status),
-      )
-      .attr("stroke-width", (d) => (d.id === selectedNodeId ? 3 : 1.5));
-
-    // Node label
-    node
-      .append("text")
-      .text((d) => d.label.length > 12 ? d.label.slice(0, 12) + "…" : d.label)
-      .attr("text-anchor", "middle")
-      .attr("dy", "0.35em")
-      .attr("font-size", (d) => Math.max(9, nodeRadius(d.noteCount) * 0.55))
-      .attr("fill", "#fff")
-      .attr("font-weight", "600")
-      .attr("pointer-events", "none")
-      .attr("font-family", "system-ui, sans-serif");
-
-    // Tooltip
-    const tooltip = d3
-      .select("body")
-      .append("div")
-      .attr("class", "forest-tooltip")
-      .style("position", "absolute")
-      .style("pointer-events", "none")
-      .style("opacity", "0")
-      .style("background", "var(--color-bg)")
-      .style("border", "1px solid var(--color-border)")
-      .style("border-radius", "6px")
-      .style("padding", "8px 12px")
-      .style("font-size", "12px")
-      .style("box-shadow", "0 4px 12px rgba(0,0,0,0.15)")
-      .style("z-index", "1000");
-
-    node
-      .on("mouseenter", (_event, d) => {
-        tooltip
-          .style("opacity", "1")
-          .html(
-            `<strong>${d.label}</strong><br/>` +
-              `Notes: ${d.noteCount}<br/>` +
-              `Health: ${(d.health * 100).toFixed(0)}%<br/>` +
-              `Status: ${d.status}<br/>` +
-              `Reads (30d): ${d.readCount30d}<br/>` +
-              `Updates (30d): ${d.updateCount30d}`,
-          );
-      })
-      .on("mousemove", (event) => {
-        tooltip
-          .style("left", event.pageX + 12 + "px")
-          .style("top", event.pageY - 10 + "px");
-      })
-      .on("mouseleave", () => {
-        tooltip.style("opacity", "0");
+      .force("y", d3.forceY<SimNode>(groundY - 120).strength(0.08))
+      .force("x", d3.forceX<SimNode>(w / 2).strength(0.05))
+      .on("tick", () => {
+        for (const n of nodes) {
+          const cr = crownRadius(n.noteCount);
+          n.x = Math.max(cr, Math.min(w - cr, n.x ?? w / 2));
+          n.y = Math.min(groundY - cr, n.y ?? groundY - 100);
+        }
+        renderFrame();
       });
 
-    // Update positions on simulation tick
-    simulation.on("tick", () => {
-      link
-        .attr("x1", (d) => (d.source as unknown as SimNode).x ?? 0)
-        .attr("y1", (d) => (d.source as unknown as SimNode).y ?? 0)
-        .attr("x2", (d) => (d.target as unknown as SimNode).x ?? 0)
-        .attr("y2", (d) => (d.target as unknown as SimNode).y ?? 0);
+    const sim = simulation;
+    simRef.current = sim;
 
-      node.attr("transform", (d) => `translate(${d.x},${d.y})`);
-    });
+    function renderFrame() {
+      ctx.save();
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
 
-    // Cleanup on unmount
+      drawSky(ctx, w, groundY);
+      drawGround(ctx, w, h, groundY);
+
+      // Vines
+      for (const e of edges) {
+        const s = e.source as SimNode;
+        const t = e.target as SimNode;
+        const sx = s.x ?? 0;
+        const sy = s.y ?? 0;
+        const tx = t.x ?? 0;
+        const ty = t.y ?? 0;
+        const sr = crownRadius(s.noteCount);
+        const tr = crownRadius(t.noteCount);
+        drawVine(ctx, sx, sy, sr, tx, ty, tr, e.weight, s.health, t.health);
+      }
+
+      // Trees
+      for (const n of nodes) {
+        const nx = n.x ?? 0;
+        const ny = n.y ?? 0;
+        const seed = hashSeed(n.id);
+
+        // Ground shadow
+        ctx.fillStyle = "rgba(0,0,0,0.1)";
+        ctx.beginPath();
+        ctx.ellipse(
+          nx,
+          ny + crownRadius(n.noteCount) * 0.3,
+          crownRadius(n.noteCount) * 0.5,
+          4,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+
+        drawTree(ctx, nx, ny, n.noteCount, n.health, n.status, seed, n.id === selectedNodeId);
+      }
+
+      // Labels
+      ctx.fillStyle = "#333";
+      ctx.font = "10px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      for (const n of nodes) {
+        const nx = n.x ?? 0;
+        const ny = n.y ?? 0;
+        const cr = crownRadius(n.noteCount);
+        const label = n.label.length > 10 ? n.label.slice(0, 10) + "…" : n.label;
+        ctx.fillText(label, nx, ny + cr + 14);
+      }
+
+      ctx.restore();
+    }
+
+    // Warm up simulation
+    simulation.alpha(1).restart();
+    for (let i = 0; i < 100; i++) simulation.tick();
+
     return () => {
       simulation.stop();
-      tooltip.remove();
+      simRef.current = null;
     };
-  }, [graph, onNodeClick, selectedNodeId]);
+  }, [graph, selectedNodeId]);
 
+  // Mouse position helper
+  const getCanvasPos = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>): { x: number; y: number } => {
+      const canvas = canvasRef.current;
+      if (!canvas) return { x: 0, y: 0 };
+      const rect = canvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    },
+    [],
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const { x, y } = getCanvasPos(e);
+      const idx = hitTest(x, y, nodesRef.current);
+
+      if (draggingRef.current) {
+        const sim = simRef.current;
+        draggingRef.current.fx = x;
+        draggingRef.current.fy = y;
+        if (sim) sim.alpha(0.1).restart();
+        return;
+      }
+
+      const canvas = canvasRef.current;
+      if (canvas) {
+        canvas.style.cursor = idx >= 0 ? "pointer" : "default";
+      }
+
+      if (!tooltipRef.current) {
+        tooltipRef.current = document.createElement("div");
+        tooltipRef.current.className = "forest-tooltip";
+        tooltipRef.current.style.cssText =
+          "position:absolute;pointer-events:none;opacity:0;background:var(--color-bg,#fff);border:1px solid var(--color-border,#ddd);border-radius:6px;padding:8px 12px;font-size:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;";
+        document.body.appendChild(tooltipRef.current);
+      }
+
+      const tip = tooltipRef.current;
+      if (idx >= 0) {
+        const n = nodesRef.current[idx];
+        tip.style.opacity = "1";
+        tip.innerHTML = `<strong>${n.label}</strong><br/>Notes: ${n.noteCount}<br/>Health: ${(n.health * 100).toFixed(0)}%<br/>Status: ${n.status}<br/>Reads (30d): ${n.readCount30d}<br/>Updates (30d): ${n.updateCount30d}`;
+        tip.style.left = e.clientX + 12 + "px";
+        tip.style.top = e.clientY - 10 + "px";
+      } else {
+        tip.style.opacity = "0";
+      }
+    },
+    [getCanvasPos],
+  );
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const { x, y } = getCanvasPos(e);
+      const idx = hitTest(x, y, nodesRef.current);
+      if (idx >= 0) {
+        draggingRef.current = nodesRef.current[idx];
+        draggingRef.current.fx = x;
+        draggingRef.current.fy = y;
+        const sim = simRef.current;
+        if (sim) sim.alphaTarget(0.3).restart();
+      }
+    },
+    [getCanvasPos],
+  );
+
+  const handleMouseUp = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (draggingRef.current) {
+        const { x, y } = getCanvasPos(e);
+        const startX = draggingRef.current.fx ?? 0;
+        const startY = draggingRef.current.fy ?? 0;
+        const dist = Math.sqrt((x - startX) ** 2 + (y - startY) ** 2);
+
+        if (dist < 4) {
+          onNodeClick(draggingRef.current.id);
+        }
+
+        draggingRef.current.fx = null;
+        draggingRef.current.fy = null;
+        draggingRef.current = null;
+
+        const sim = simRef.current;
+        if (sim) sim.alphaTarget(0);
+      }
+    },
+    [getCanvasPos, onNodeClick],
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    if (tooltipRef.current) {
+      tooltipRef.current.style.opacity = "0";
+    }
+    if (draggingRef.current) {
+      draggingRef.current.fx = null;
+      draggingRef.current.fy = null;
+      draggingRef.current = null;
+      const sim = simRef.current;
+      if (sim) sim.alphaTarget(0);
+    }
+  }, []);
+
+  // Cleanup tooltip on unmount
   useEffect(() => {
-    const cleanup = renderForest();
-    return () => cleanup?.();
-  }, [renderForest]);
+    return () => {
+      if (tooltipRef.current) {
+        tooltipRef.current.remove();
+        tooltipRef.current = null;
+      }
+    };
+  }, []);
 
-  // Handle resize
-  useEffect(() => {
-    const handleResize = () => renderForest();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [renderForest]);
-
-  return <svg ref={svgRef} className="forest-svg" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="forest-canvas-el"
+      onMouseMove={handleMouseMove}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+    />
+  );
 }
