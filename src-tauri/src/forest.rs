@@ -107,7 +107,7 @@ fn query_tag_stats(conn: &Connection, vault_id: &str, now: i64) -> Result<Vec<Ta
 
     let mut stmt = conn.prepare(
         "SELECT
-            t.id, t.name, t.normalized_name,
+            t.name, t.normalized_name,
             (SELECT COUNT(*) FROM note_tags nt2 JOIN notes n2 ON nt2.note_id = n2.id
              WHERE nt2.tag_id = t.id AND n2.deleted = 0) as note_count,
             COALESCE((SELECT COUNT(*) FROM note_activity a

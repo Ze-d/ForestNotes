@@ -1,0 +1,147 @@
+<style>
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 24px;
+  }
+  .layout-card {
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .layout-card:hover { border-color: #2f9e44; }
+  .mock-canvas {
+    width: 100%;
+    aspect-ratio: 16/10;
+    border-radius: 8px;
+    background: #f1f3f5;
+    position: relative;
+    overflow: hidden;
+  }
+  .label-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 13px;
+  }
+  .note {
+    font-size: 12px;
+    color: #868e96;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+</style>
+
+<h2>网格布局方案</h2>
+<p class="subtitle">当前是 d3-force 自由力导向布局，树可以飘到任意位置。<br>
+你希望改为 <strong>45° 倾斜的网格斜面</strong>，树只能放在网格交叉点上。</p>
+
+<div class="section">
+  <h3>核心概念：Isometric 网格斜面</h3>
+  <p>想象一个倾斜 45° 的平面（像棋盘倾斜放在桌上），网格线沿 x=y 和 x=-y 方向延伸，树放在网格交叉点上。</p>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="diamond-grid" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>菱形网格 (Diamond Grid)</h3>
+      <div class="mock-canvas">
+        <svg width="100%" height="100%" viewBox="0 0 600 380">
+          <!-- Sky -->
+          <rect x="0" y="0" width="600" height="380" fill="#e8f4fd"/>
+          <!-- Isometric ground plane -->
+          <polygon points="300,80 570,220 300,360 30,220" fill="#c8e6c9" stroke="#81c784" stroke-width="2"/>
+          <!-- Grid lines - diagonal -->
+          <line x1="300" y1="80" x2="300" y2="360" stroke="#a5d6a7" stroke-width="0.8"/>
+          <line x1="30" y1="220" x2="570" y2="220" stroke="#a5d6a7" stroke-width="0.8"/>
+          <!-- More grid lines -->
+          <line x1="165" y1="150" x2="435" y2="290" stroke="#a5d6a7" stroke-width="0.5"/>
+          <line x1="435" y1="150" x2="165" y2="290" stroke="#a5d6a7" stroke-width="0.5"/>
+          <line x1="97" y1="185" x2="503" y2="255" stroke="#a5d6a7" stroke-width="0.5"/>
+          <line x1="97" y1="255" x2="503" y2="185" stroke="#a5d6a7" stroke-width="0.5"/>
+          <!-- Grid dots -->
+          <circle cx="300" cy="220" r="3" fill="#66bb6a"/>
+          <circle cx="165" cy="220" r="2.5" fill="#66bb6a"/>
+          <circle cx="435" cy="220" r="2.5" fill="#66bb6a"/>
+          <circle cx="232" cy="185" r="2.5" fill="#66bb6a"/>
+          <circle cx="367" cy="255" r="2.5" fill="#66bb6a"/>
+          <circle cx="367" cy="185" r="2.5" fill="#66bb6a"/>
+          <circle cx="232" cy="255" r="2.5" fill="#66bb6a"/>
+          <circle cx="300" cy="150" r="2.5" fill="#66bb6a"/>
+          <circle cx="300" cy="290" r="2.5" fill="#66bb6a"/>
+          <!-- Trees at grid points (simple triangles for mockup) -->
+          <polygon points="300,200 295,220 305,220" fill="#2f9e44"/>
+          <polygon points="300,180 293,200 307,200" fill="#2f9e44"/>
+          <polygon points="300,160 294,180 306,180" fill="#2f9e44"/>
+          <rect x="299" y="200" width="2" height="25" fill="#795548"/>
+          <polygon points="165,200 160,222 170,222" fill="#74b816"/>
+          <rect x="164" y="200" width="2" height="25" fill="#795548"/>
+          <polygon points="367,240 362,260 372,260" fill="#f59f00"/>
+          <rect x="366" y="240" width="2" height="20" fill="#795548"/>
+          <polygon points="232,240 226,258 238,258" fill="#74b816"/>
+          <rect x="231" y="240" width="2" height="20" fill="#795548"/>
+        </svg>
+      </div>
+      <div class="label-row"><strong>菱形网格</strong></div>
+      <div class="note">网格线与 isometric 平面对齐。树在菱形网格交点。藤蔓沿网格对角线方向延伸。纯 isometric 视角——50° 俯视。</div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="wide-grid" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>宽视角矩形网格</h3>
+      <div class="mock-canvas">
+        <svg width="100%" height="100%" viewBox="0 0 600 380">
+          <rect x="0" y="0" width="600" height="380" fill="#e8f4fd"/>
+          <!-- Ground plane - wider, less tilted -->
+          <polygon points="40,280 300,170 560,280 300,340" fill="#c8e6c9" stroke="#81c784" stroke-width="1.5"/>
+          <!-- Rectangular grid projected to isometric -->
+          <line x1="40" y1="280" x2="560" y2="280" stroke="#a5d6a7" stroke-width="0.6"/>
+          <line x1="170" y1="240" x2="430" y2="310" stroke="#a5d6a7" stroke-width="0.6"/>
+          <line x1="235" y1="200" x2="365" y2="315" stroke="#a5d6a7" stroke-width="0.6"/>
+          <line x1="300" y1="170" x2="300" y2="340" stroke="#a5d6a7" stroke-width="0.6"/>
+          <line x1="170" y1="200" x2="170" y2="320" stroke="#a5d6a7" stroke-width="0.4"/>
+          <line x1="235" y1="170" x2="235" y2="330" stroke="#a5d6a7" stroke-width="0.4"/>
+          <line x1="365" y1="170" x2="365" y2="330" stroke="#a5d6a7" stroke-width="0.4"/>
+          <line x1="430" y1="180" x2="430" y2="330" stroke="#a5d6a7" stroke-width="0.4"/>
+          <!-- Trees -->
+          <polygon points="300,260 293,285 307,285" fill="#2f9e44"/><rect x="299" y="260" width="2" height="28" fill="#795548"/>
+          <polygon points="235,240 229,262 241,262" fill="#74b816"/><rect x="234" y="240" width="2" height="23" fill="#795548"/>
+          <polygon points="365,250 358,274 372,274" fill="#2f9e44"/><rect x="364" y="250" width="2" height="26" fill="#795548"/>
+          <polygon points="170,260 165,280 175,280" fill="#f59f00"/><rect x="169" y="260" width="2" height="23" fill="#795548"/>
+          <polygon points="430,250 424,274 436,274" fill="#74b816"/><rect x="429" y="250" width="2" height="26" fill="#795548"/>
+        </svg>
+      </div>
+      <div class="label-row"><strong>矩形网格（15-20° 倾斜）</strong></div>
+      <div class="note">2D 矩形网格 + isometric 投影。网格更密，角度更平（~20° 倾斜），树木排列更整齐。藤蔓沿网格直线或对角线。</div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px;">
+  <h3>对比：D3 Force（当前）</h3>
+  <div class="mock-canvas" style="aspect-ratio: 21/9;">
+    <svg width="100%" height="100%" viewBox="0 0 600 200">
+      <rect x="0" y="0" width="600" height="200" fill="#e8f4fd"/>
+      <line x1="40" y1="180" x2="560" y2="180" stroke="#a5d6a7" stroke-width="3"/>
+      <!-- Free-form trees -->
+      <polygon points="100,150 93,170 107,170" fill="#2f9e44"/><rect x="99" y="150" width="2" height="30" fill="#795548"/>
+      <polygon points="200,130 193,155 207,155" fill="#f59f00"/><rect x="199" y="130" width="2" height="22" fill="#795548"/>
+      <polygon points="330,120 322,145 338,145" fill="#2f9e44"/><rect x="329" y="120" width="2" height="28" fill="#795548"/>
+      <polygon points="420,155 413,175 427,175" fill="#74b816"/><rect x="419" y="155" width="2" height="32" fill="#795548"/>
+      <polygon points="520,140 513,165 527,165" fill="#adb5bd"/><rect x="519" y="140" width="2" height="26" fill="#795548"/>
+      <!-- Lines between free trees -->
+      <line x1="100" y1="150" x2="200" y2="130" stroke="#adb5bd" stroke-width="1" stroke-dasharray="4"/>
+      <line x1="200" y1="130" x2="330" y2="120" stroke="#adb5bd" stroke-width="1.5" stroke-dasharray="4"/>
+      <line x1="330" y1="120" x2="420" y2="155" stroke="#adb5bd" stroke-width="2"/>
+      <line x1="100" y1="150" x2="330" y2="120" stroke="#adb5bd" stroke-width="1"/>
+    </svg>
+  </div>
+  <div class="note" style="margin-top: 4px;">力导向自由布局：树可以漂到任意 (x,y) 位置，无网格约束。视觉上凌乱。</div>
+</div>

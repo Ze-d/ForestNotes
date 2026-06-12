@@ -118,13 +118,17 @@ export function ForestView() {
             <div className="forest-placeholder">
               <p>🌲 Generating forest...</p>
             </div>
-          ) : forestGraph && forestGraph.nodes.length === 0 ? (
+          ) : !forestGraph ? (
+            <div className="forest-placeholder">
+              <p>🌲 Click Refresh to load the forest.</p>
+            </div>
+          ) : forestGraph.nodes.length === 0 ? (
             <div className="forest-placeholder">
               <p>🌲 No tags found. Add tags to your notes to grow the forest.</p>
             </div>
           ) : (
             <ForestCanvas
-              graph={filteredGraph}
+              graph={filteredGraph!}
               onNodeClick={setSelectedNodeId}
               selectedNodeId={selectedNodeId}
             />

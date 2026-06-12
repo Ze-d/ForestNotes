@@ -1,0 +1,151 @@
+<script>
+  function updateAngle(val) {
+    document.querySelectorAll('.angle-display').forEach(el => el.textContent = val + '°');
+    document.querySelectorAll('.iso-ground').forEach(el => {
+      el.setAttribute('transform', 'translate(250,160) rotate(' + val + ') scale(1,0.55)');
+    });
+    document.querySelectorAll('.iso-tree-group').forEach(el => {
+      el.setAttribute('transform', 'translate(250,160) rotate(' + val + ')');
+    });
+  }
+</script>
+
+<style>
+  .slider-bar {
+    display: flex; align-items: center; gap: 12px;
+    margin: 16px 0; padding: 12px 16px;
+    background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;
+  }
+  .slider-bar input { flex: 1; }
+  .demo-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;
+  }
+  .demo-box {
+    background: #fafafa; border: 1.5px solid #dee2e6; border-radius: 10px; padding: 12px;
+  }
+  .demo-svg {
+    width: 100%; aspect-ratio: 16/10; background: #f0f5ff; border-radius: 8px;
+  }
+  .note { font-size: 12px; color: #868e96; margin-top: 8px; line-height: 1.5; }
+  .result-box {
+    background: #f6fff6; border: 2px solid #2f9e44;
+    border-radius: 10px; padding: 16px; margin-top: 20px;
+  }
+  .result-box table { width:100%; font-size:13px; border-collapse:collapse; }
+  .result-box td { padding: 3px 8px; }
+</style>
+
+<h2>等距投影 · 立体树木 · 无挤压</h2>
+<p class="subtitle">
+  地面按 Z 轴旋转，做 <strong>scale(1, 0.55)</strong> 等距投影。<br>
+  树木垂直站立——不受地面挤压影响。
+</p>
+
+<div class="slider-bar">
+  <strong>🔁 地面旋转角度：</strong>
+  <input type="range" min="10" max="50" value="30" step="1" oninput="updateAngle(this.value)">
+  <span style="font-weight:bold;color:#2f9e44;min-width:40px;"><span class="angle-display">30</span></span>
+</div>
+
+<div class="demo-row">
+  <!-- Side-by-side: Without trees vs With trees -->
+  <div class="demo-box">
+    <h3 style="margin:0 0 8px;font-size:14px;">网格地面（等距投影）</h3>
+    <svg class="demo-svg" viewBox="0 0 500 320">
+      <rect width="500" height="320" fill="#f0f5ff"/>
+      <rect x="10" y="10" width="480" height="300" fill="#f8fafc" rx="6"/>
+
+      <!-- Ground shadow -->
+      <ellipse cx="250" cy="230" rx="180" ry="30" fill="rgba(0,0,0,0.06)"/>
+
+      <!-- Isometric ground plane (rotated, scaled) -->
+      <g class="iso-ground" transform="translate(250,160) rotate(30) scale(1,0.55)">
+        <!-- Green lawn rect -->
+        <rect x="-160" y="-80" width="320" height="160" fill="#c8e6c9" stroke="#81c784" stroke-width="2" rx="2"/>
+
+        <!-- Grid lines -->
+        <line x1="-160" y1="-40" x2="160" y2="-40" stroke="#a5d6a7" stroke-width="0.5"/>
+        <line x1="-160" y1="0"   x2="160" y2="0"   stroke="#a5d6a7" stroke-width="0.5"/>
+        <line x1="-160" y1="40"  x2="160" y2="40"  stroke="#a5d6a7" stroke-width="0.5"/>
+
+        <line x1="-120" y1="-80" x2="-120" y2="80" stroke="#a5d6a7" stroke-width="0.5"/>
+        <line x1="-40"  y1="-80" x2="-40"  y2="80" stroke="#a5d6a7" stroke-width="0.5"/>
+        <line x1="40"   y1="-80" x2="40"   y2="80" stroke="#a5d6a7" stroke-width="0.5"/>
+        <line x1="120"  y1="-80" x2="120"  y2="80" stroke="#a5d6a7" stroke-width="0.5"/>
+
+        <!-- Grid dots -->
+        <circle cx="-80" cy="-40" r="3" fill="#4caf50"/>
+        <circle cx="0"   cy="-40" r="3" fill="#4caf50"/>
+        <circle cx="80"  cy="-40" r="3" fill="#4caf50"/>
+        <circle cx="-80" cy="0"   r="3" fill="#4caf50"/>
+        <circle cx="0"   cy="0"   r="3" fill="#4caf50"/>
+        <circle cx="80"  cy="0"   r="3" fill="#4caf50"/>
+        <circle cx="-80" cy="40"  r="3" fill="#4caf50"/>
+        <circle cx="0"   cy="40"  r="3" fill="#4caf50"/>
+        <circle cx="80"  cy="40"  r="3" fill="#4caf50"/>
+      </g>
+
+      <text x="250" y="300" text-anchor="middle" font-size="11" fill="#868e96">
+        scale(1, 0.55) — 等距投影，无 skew 挤压
+      </text>
+    </svg>
+    <div class="note">纯正的 isometric 投影：rotate(Z) + scale(1, 0.55)。无 skewX。</div>
+  </div>
+
+  <div class="demo-box">
+    <h3 style="margin:0 0 8px;font-size:14px;">树垂直站立（从格点长出）</h3>
+    <svg class="demo-svg" viewBox="0 0 500 320">
+      <rect width="500" height="320" fill="#f0f5ff"/>
+      <rect x="10" y="10" width="480" height="300" fill="#f8fafc" rx="6"/>
+
+      <!-- Ground shadow -->
+      <ellipse cx="250" cy="235" rx="180" ry="30" fill="rgba(0,0,0,0.06)"/>
+
+      <!-- Ground plane -->
+      <g transform="translate(250,180) rotate(30) scale(1,0.55)">
+        <rect x="-160" y="-80" width="320" height="160" fill="#c8e6c9" stroke="#81c784" stroke-width="2"/>
+        <line x1="-160" y1="-40" x2="160" y2="-40" stroke="#a5d6a7" stroke-width="0.5"/>
+        <line x1="-160" y1="0"   x2="160" y2="0"   stroke="#a5d6a7" stroke-width="0.5"/>
+        <line x1="-160" y1="40"  x2="160" y2="40"  stroke="#a5d6a7" stroke-width="0.5"/>
+        <line x1="-120" y1="-80" x2="-120" y2="80" stroke="#a5d6a7" stroke-width="0.5"/>
+        <line x1="-40"  y1="-80" x2="-40"  y2="80" stroke="#a5d6a7" stroke-width="0.5"/>
+        <line x1="40"   y1="-80" x2="40"   y2="80" stroke="#a5d6a7" stroke-width="0.5"/>
+        <line x1="120"  y1="-80" x2="120"  y2="80" stroke="#a5d6a7" stroke-width="0.5"/>
+      </g>
+
+      <!-- Trees standing VERTICALLY from ground -- not squashed! -->
+      <g transform="translate(250,180) rotate(30)">
+        <!-- Grid position (-80,-40) in ground coords → multiply y by 0.55 for screen -->
+        <!-- screen = rotate30 * [gx, gy*0.55] -->
+        <g transform="translate(-80,-22)"><line x1="0" y1="0" x2="0" y2="-35" stroke="#6d4c41" stroke-width="3"/><circle cx="0" cy="-42" r="14" fill="#40c057" opacity="0.85"/></g>
+        <g transform="translate(0,-22)"><line x1="0" y1="0" x2="0" y2="-50" stroke="#6d4c41" stroke-width="4"/><circle cx="0" cy="-58" r="20" fill="#40c057" opacity="0.85"/></g>
+        <g transform="translate(80,-22)"><line x1="0" y1="0" x2="0" y2="-30" stroke="#6d4c41" stroke-width="2.5"/><circle cx="0" cy="-36" r="12" fill="#74b816" opacity="0.85"/></g>
+        <g transform="translate(-40,0)"><line x1="0" y1="0" x2="0" y2="-28" stroke="#6d4c41" stroke-width="2"/><circle cx="0" cy="-34" r="11" fill="#f59f00" opacity="0.8"/></g>
+        <g transform="translate(40,0)"><line x1="0" y1="0" x2="0" y2="-38" stroke="#6d4c41" stroke-width="3"/><circle cx="0" cy="-44" r="16" fill="#74b816" opacity="0.85"/></g>
+        <g transform="translate(-80,22)"><line x1="0" y1="0" x2="0" y2="-25" stroke="#6d4c41" stroke-width="2"/><circle cx="0" cy="-30" r="10" fill="#adb5bd" opacity="0.7"/></g>
+        <g transform="translate(80,22)"><line x1="0" y1="0" x2="0" y2="-32" stroke="#6d4c41" stroke-width="2.5"/><circle cx="0" cy="-38" r="13" fill="#40c057" opacity="0.8"/></g>
+      </g>
+
+      <!-- Annotation -->
+      <text x="250" y="305" text-anchor="middle" font-size="11" fill="#4caf50">
+        树木 = 垂直站立（树干↑y- 方向），无压缩
+      </text>
+    </svg>
+    <div class="note">
+      树在世界空间垂直生长（树干沿 screen-Y 向上）。<br>
+      树冠圆形——<strong>不参与地面缩放</strong>。
+    </div>
+  </div>
+</div>
+
+<div class="result-box">
+  <h3 style="margin:0 0 10px;color:#2f9e44;">✅ 坐标系统</h3>
+  <table>
+    <tr><td width="140">地面变换</td><td><code>rotate(Z, userAngle) + scale(1, 0.55)</code> — 纯 isometric</td></tr>
+    <tr><td>网格坐标系</td><td>ground-space (gx, gy)，网格间距 ~60px</td></tr>
+    <tr><td>树的世界位置</td><td><code>screen = rotateZ(angle) * [gx, gy*0.55]</code></td></tr>
+    <tr><td><strong>树绘制</strong></td><td><strong>垂直向上</strong>（像素 Y 减小），不缩放</td></tr>
+    <tr><td>交互旋转</td><td>拖拽空白区域 → 改变 <code>userAngle</code> (±15°)</td></tr>
+    <tr><td>树拖拽</td><td>只能吸附最近网格交点（在 ground-space 中）</td></tr>
+  </table>
+</div>
