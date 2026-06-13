@@ -1,0 +1,112 @@
+<h2>藤蔓形态优化</h2>
+<p class="subtitle">P1：当前藤蔓为简单贝塞尔细线，需要增加粗细感和自然度</p>
+
+<div class="section">
+  <h3>当前 vs 目标</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">当前：QuadraticBezierCurve3 + Line</div>
+      <div class="mockup-body">
+        <div style="padding:12px;background:#1a1b2e;text-align:center">
+          <svg width="200" height="120" viewBox="0 0 200 120">
+            <circle cx="30" cy="60" r="18" fill="#2f9e44" opacity="0.7"/>
+            <circle cx="170" cy="30" r="14" fill="#74b816" opacity="0.7"/>
+            <path d="M45,55 Q100,80 158,38" stroke="#81c784" stroke-width="1" fill="none" opacity="0.4"/>
+            <circle cx="30" cy="90" r="18" fill="#40c057" opacity="0.7"/>
+            <circle cx="170" cy="100" r="12" fill="#f59f00" opacity="0.7"/>
+            <path d="M45,85 Q100,110 160,97" stroke="#81c784" stroke-width="0.8" fill="none" opacity="0.3"/>
+          </svg>
+          <p style="color:#adb5bd;font-size:11px;margin-top:4px">单线、无粗细、无缠绕</p>
+        </div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">目标：TubeGeometry + 螺旋缠绕</div>
+      <div class="mockup-body">
+        <div style="padding:12px;background:#1a1b2e;text-align:center">
+          <svg width="200" height="120" viewBox="0 0 200 120">
+            <circle cx="30" cy="60" r="18" fill="#2f9e44" opacity="0.8"/>
+            <circle cx="170" cy="30" r="14" fill="#74b816" opacity="0.8"/>
+            <path d="M42,52 Q100,78 155,35" stroke="#66bb6a" stroke-width="4" fill="none" opacity="0.6" stroke-linecap="round"/>
+            <path d="M48,58 Q100,82 160,38" stroke="#81c784" stroke-width="3" fill="none" opacity="0.5" stroke-linecap="round"/>
+            <circle cx="30" cy="90" r="18" fill="#40c057" opacity="0.8"/>
+            <circle cx="170" cy="100" r="12" fill="#f59f00" opacity="0.8"/>
+            <path d="M42,83 Q100,72 155,94" stroke="#94d82d" stroke-width="3" fill="none" opacity="0.5" stroke-linecap="round"/>
+            <path d="M48,86 Q100,76 160,98" stroke="#74b816" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round"/>
+          </svg>
+          <p style="color:#74b816;font-size:11px;margin-top:4px">有粗细、有缠绕感</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>藤蔓改进选项</h3>
+  <div class="options" data-multiselect>
+    <div class="option" data-choice="tube" onclick="toggleSelect(this)">
+      <div class="letter">A</div>
+      <div class="content">
+        <h3>TubeGeometry（推荐）</h3>
+        <p>沿贝塞尔曲线路径生成管状几何体，有截面粗细。<br/>
+        <strong>实现：</strong>TubeGeometry(curve, 16 segments, 0.06 radius, 8 radial)<br/>
+        <strong>优点：</strong>three.js 内置，代码简单，有 3D 体积感</p>
+      </div>
+    </div>
+    <div class="option" data-choice="spiral" onclick="toggleSelect(this)">
+      <div class="letter">B</div>
+      <div class="content">
+        <h3>螺旋缠绕</h3>
+        <p>沿树干螺旋上升，在树冠间桥接。<br/>
+        <strong>实现：</strong>将曲线控制点沿树干轴线偏移，创建螺旋路径<br/>
+        <strong>优点：</strong>更像真实藤蔓缠绕</p>
+      </div>
+    </div>
+    <div class="option" data-choice="multi-strand" onclick="toggleSelect(this)">
+      <div class="letter">C</div>
+      <div class="content">
+        <h3>多股藤蔓（按 weight）</h3>
+        <p>共现次数高时画 weight 条平行藤蔓。<br/>
+        <strong>实现：</strong>weight=1→1条，weight=3→2条，weight≥5→3条<br/>
+        <strong>优点：</strong>视觉上直观体现 tag 关联强度</p>
+      </div>
+    </div>
+    <div class="option" data-choice="color-gradient" onclick="toggleSelect(this)">
+      <div class="letter">D</div>
+      <div class="content">
+        <h3>藤蔓颜色渐变</h3>
+        <p>根据两端树的健康度取中间色。<br/>
+        <strong>实现：</strong>两端树的 health 值映射颜色，藤蔓材质用顶点颜色渐变<br/>
+        <strong>示例：</strong>健康(绿)↔枯萎(灰)的藤蔓中间是黄绿渐变色</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>推荐级别</h3>
+  <div style="background:#f0fff4;padding:16px;border-radius:8px;border:1px solid #40c057">
+    <table style="width:100%;font-size:13px;border-collapse:collapse">
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>A. TubeGeometry</strong></td>
+        <td style="padding:6px;color:#40c057">必做</td>
+        <td style="padding:6px;color:#666">从 Line 升级到 Tube，3D 体积感</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>D. 颜色渐变</strong></td>
+        <td style="padding:6px;color:#40c057">必做</td>
+        <td style="padding:6px;color:#666">两端健康度映射，视觉有意义</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>C. 多股藤蔓</strong></td>
+        <td style="padding:6px;color:#f59f00">推荐</td>
+        <td style="padding:6px;color:#666">weight 直观表达</td>
+      </tr>
+      <tr>
+        <td style="padding:6px"><strong>B. 螺旋缠绕</strong></td>
+        <td style="padding:6px;color:#adb5bd">锦上添花</td>
+        <td style="padding:6px;color:#666">效果好但计算量大，视性能决定</td>
+      </tr>
+    </table>
+  </div>
+</div>
