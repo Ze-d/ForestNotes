@@ -1,0 +1,114 @@
+<h2>树冠形态多样性 — 当前 vs 目标</h2>
+<p class="subtitle">P0：当前所有树使用完全相同的锥形几何体，无法从外观区分不同 tag</p>
+
+<div class="section">
+  <h3>问题：当前所有树一模一样</h3>
+  <div class="mockup">
+    <div class="mockup-header">当前状态 — 所有树 = Cylinder + Cone × 3（仅大小不同）</div>
+    <div class="mockup-body">
+      <div style="display:flex;justify-content:center;gap:24px;padding:16px;flex-wrap:wrap;background:#1a1b2e;">
+        <div style="text-align:center">
+          <div style="width:80px;height:100px;margin:0 auto;position:relative">
+            <div style="position:absolute;bottom:0;left:38px;width:4px;height:40px;background:#6d4c41;"></div>
+            <div style="position:absolute;bottom:35px;left:24px;width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:30px solid #2f9e44;"></div>
+            <div style="position:absolute;bottom:50px;left:28px;width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:25px solid #2f9e44;"></div>
+            <div style="position:absolute;bottom:62px;left:32px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:20px solid #2f9e44;"></div>
+          </div>
+          <p style="color:#e9ecef;font-size:11px;margin-top:4px">Big tag (n=20)</p>
+        </div>
+        <div style="text-align:center">
+          <div style="width:60px;height:80px;margin:0 auto;position:relative">
+            <div style="position:absolute;bottom:0;left:28px;width:4px;height:30px;background:#6d4c41;"></div>
+            <div style="position:absolute;bottom:25px;left:18px;width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:22px solid #74b816;"></div>
+            <div style="position:absolute;bottom:36px;left:22px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:18px solid #74b816;"></div>
+          </div>
+          <p style="color:#e9ecef;font-size:11px;margin-top:4px">Small tag (n=3)</p>
+        </div>
+        <div style="text-align:center">
+          <div style="width:60px;height:80px;margin:0 auto;position:relative">
+            <div style="position:absolute;bottom:0;left:28px;width:4px;height:30px;background:#6d4c41;"></div>
+            <div style="position:absolute;bottom:25px;left:18px;width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:22px solid #f59f00;"></div>
+            <div style="position:absolute;bottom:36px;left:22px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:18px solid #f59f00;"></div>
+          </div>
+          <p style="color:#e9ecef;font-size:11px;margin-top:4px">Stale tag (n=3)</p>
+        </div>
+        <div style="text-align:center">
+          <div style="width:60px;height:80px;margin:0 auto;position:relative;opacity:0.4">
+            <div style="position:absolute;bottom:0;left:28px;width:4px;height:30px;background:#9e9e9e;"></div>
+            <div style="position:absolute;bottom:25px;left:18px;width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:22px solid #9e9e9e;"></div>
+          </div>
+          <p style="color:#adb5bd;font-size:11px;margin-top:4px">Dormant (n=3)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pros-cons">
+    <div class="cons"><h4>现状问题</h4><ul>
+      <li>所有树都是「锥形三角形」轮廓</li>
+      <li>只有大小和颜色不同，形态完全一致</li>
+      <li>健康树和枯萎树看起来是"同一个树换了颜色"，不够自然</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>方案对比：如何让每棵树形态不同？</h3>
+  <p class="subtitle">请选择树冠形态多样化的方向</p>
+
+  <div class="options">
+    <div class="option" data-choice="a" onclick="toggleSelect(this)">
+      <div class="letter">A</div>
+      <div class="content">
+        <h3>几何体混合（推荐）</h3>
+        <p>基于 hashSeed(id) 随机选择不同几何体组合：锥形、球形、椭球形、半球形。<br/>
+        <strong>优点：</strong>低多边形风格不变，代码改动小，每棵树立即不同<br/>
+        <strong>示例：</strong>松树→cone、阔叶树→sphere、灌木→hemisphere、混合→cone+sphere</p>
+      </div>
+    </div>
+    <div class="option" data-choice="b" onclick="toggleSelect(this)">
+      <div class="letter">B</div>
+      <div class="content">
+        <h3>参数化变异</h3>
+        <p>同一锥形几何体，但通过随机参数（半径比、高度比、偏移、旋转）产生变化。<br/>
+        <strong>优点：</strong>代码量最小，不改几何体类型<br/>
+        <strong>缺点：</strong>变化幅度有限，远看可能还是差不多</p>
+      </div>
+    </div>
+    <div class="option" data-choice="c" onclick="toggleSelect(this)">
+      <div class="letter">C</div>
+      <div class="content">
+        <h3>完全随机生成（L-system）</h3>
+        <p>每棵树用 Lindenmayer system 生成独一无二的枝干结构。<br/>
+        <strong>优点：</strong>最自然、每棵树都不同<br/>
+        <strong>缺点：</strong>实现复杂度高，与当前低多边形风格可能冲突</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>健康度视觉层次</h3>
+  <p class="subtitle">当前只是改颜色，建议增加以下维度来展示 healthy → normal → stale → dormant 的渐变</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;font-size:12px">
+    <div style="background:#f0fff4;padding:12px;border-radius:8px;text-align:center">
+      <strong>🌳 Healthy</strong>
+      <p style="color:#2f9e44;margin:4px 0">翠绿饱满</p>
+      <p style="color:#666">3层树冠、叶子粒子漂浮、树干粗壮</p>
+    </div>
+    <div style="background:#f8fff0;padding:12px;border-radius:8px;text-align:center">
+      <strong>🌿 Normal</strong>
+      <p style="color:#74b816;margin:4px 0">绿色正常</p>
+      <p style="color:#666">2-3层树冠、无粒子</p>
+    </div>
+    <div style="background:#fffdf0;padding:12px;border-radius:8px;text-align:center">
+      <strong>🍂 Stale</strong>
+      <p style="color:#f59f00;margin:4px 0">黄绿稀疏</p>
+      <p style="color:#666">1-2层树冠、树冠体积缩小、少量落叶</p>
+    </div>
+    <div style="background:#f8f9fa;padding:12px;border-radius:8px;text-align:center">
+      <strong>🪵 Dormant</strong>
+      <p style="color:#adb5bd;margin:4px 0">枯灰光秃</p>
+      <p style="color:#666">无树冠或光秃枝干、半透明、灰色</p>
+    </div>
+  </div>
+</div>

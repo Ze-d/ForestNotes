@@ -1,0 +1,87 @@
+<h2>树木排布算法 — 当前 vs 优化方案</h2>
+<p class="subtitle">P1：当前所有树均匀排列在菱形网格上，大 tag 不突出，相关 tag 可能分散</p>
+
+<div class="section">
+  <h3>当前问题</h3>
+  <div class="mockup">
+    <div class="mockup-header">当前 assignGridPositions — 菱形网格均匀排列</div>
+    <div class="mockup-body">
+      <div style="display:flex;justify-content:center;padding:20px;background:#1a1b2e">
+        <div style="position:relative;width:360px;height:280px;background:linear-gradient(135deg,#4caf50,#2e7d32);border-radius:50%">
+          <!-- Random scattered dots -->
+          <div style="position:absolute;top:40px;left:80px;width:12px;height:12px;background:#2f9e44;border-radius:50%"></div>
+          <div style="position:absolute;top:180px;left:60px;width:6px;height:6px;background:#74b816;border-radius:50%"></div>
+          <div style="position:absolute;top:100px;left:200px;width:14px;height:14px;background:#40c057;border-radius:50%;box-shadow:0 0 8px rgba(64,192,87,0.4)"></div>
+          <div style="position:absolute;top:200px;left:150px;width:6px;height:6px;background:#adb5bd;border-radius:50%"></div>
+          <div style="position:absolute;top:70px;left:270px;width:8px;height:8px;background:#f59f00;border-radius:50%"></div>
+          <div style="position:absolute;top:160px;left:280px;width:11px;height:11px;background:#2f9e44;border-radius:50%"></div>
+          <div style="position:absolute;top:120px;left:120px;width:7px;height:7px;background:#adb5bd;border-radius:50%"></div>
+          <div style="position:absolute;top:80px;left:320px;width:5px;height:5px;background:#74b816;border-radius:50%"></div>
+          <div style="position:absolute;top:hsl(220,140px;left:40px;width:9px;height:9px;background:#f59f00;border-radius:50%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pros-cons">
+    <div class="cons"><h4>问题</h4><ul>
+      <li>大 tag（重要 topic）和小 tag 随机混在一起，视觉权重不反映重要性</li>
+      <li>高频共现的 tag 可能被排到岛的两端，藤蔓很长</li>
+      <li>树大小差异大时可能穿插重叠</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>排布策略选择</h3>
+  <p class="subtitle">决定树在岛上的位置规则（可多选组合）</p>
+
+  <div class="options" data-multiselect>
+    <div class="option" data-choice="center-big" onclick="toggleSelect(this)">
+      <div class="letter">1</div>
+      <div class="content">
+        <h3>按 noteCount 中心→边缘排列</h3>
+        <p>大树在岛中心、小树在边缘。<br/>
+        实现：按 noteCount 排序，中心距离 = f(rank)，越重要越靠近中心</p>
+      </div>
+    </div>
+    <div class="option" data-choice="cluster" onclick="toggleSelect(this)">
+      <div class="letter">2</div>
+      <div class="content">
+        <h3>按共现聚类排列</h3>
+        <p>藤蔓连接多的树聚集在一起。<br/>
+        实现：对 edge weight 做简单的力导向预布局，或按连通分量分组</p>
+      </div>
+    </div>
+    <div class="option" data-choice="spiral" onclick="toggleSelect(this)">
+      <div class="letter">3</div>
+      <div class="content">
+        <h3>螺旋/斐波那契排列</h3>
+        <p>从中心向外螺旋分布，大树在螺旋起点。<br/>
+        特点：物理上均匀分布但视觉上中心汇聚，适合圆形岛</p>
+      </div>
+    </div>
+    <div class="option" data-choice="force-layout" onclick="toggleSelect(this)">
+      <div class="letter">4</div>
+      <div class="content">
+        <h3>d3-force 预布局（推荐组合用）</h3>
+        <p>在初始化时用 d3-force 跑 100 tick 做预布局。<br/>
+        用 collideradius = crownRadius + margin 保证不穿插。<br/>
+        然后固定位置，不再每帧跑物理</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>推荐组合</h3>
+  <div style="background:#f0fff4;padding:16px;border-radius:8px;border:1px solid #40c057">
+    <strong>1 + 2 + 4 组合：</strong>
+    <ol style="margin:8px 0 0 16px;font-size:13px">
+      <li>用 d3-force 预布局解决间距和穿插问题</li>
+      <li>初始位置按 noteCount 排序：大树靠近中心</li>
+      <li>用 link force 把高 weight 藤蔓的树拉近</li>
+      <li>跑 ~200 tick 收敛后固定，不再实时物理</li>
+    </ol>
+    <p style="margin-top:8px;font-size:12px;color:#666">这样既保留了 3D 场景的稳定感，又让视觉布局有意义</p>
+  </div>
+</div>

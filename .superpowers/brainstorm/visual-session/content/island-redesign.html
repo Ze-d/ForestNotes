@@ -1,0 +1,131 @@
+<h2>悬浮岛视觉重设计</h2>
+<p class="subtitle">P2：当前方形块岛屿 → 更自然的有机形态</p>
+
+<div class="section">
+  <h3>当前 vs 目标对比</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">当前：方块岛屿</div>
+      <div class="mockup-body">
+        <div style="background:#1a1b2e;padding:24px;text-align:center">
+          <div style="width:160px;height:120px;margin:0 auto;background:linear-gradient(180deg,#66bb6a 0%,#66bb6a 25%,#a0896e 25%,#a0896e 28%,#8B6B4A 28%,#8B6B4A 60%,#6d4c41 60%);border-radius:4px;position:relative">
+            <div style="position:absolute;top:6px;left:8px;width:6px;height:20px;background:#4caf50;border-radius:1px"></div>
+            <div style="position:absolute;top:4px;left:40px;width:10px;height:26px;background:#2f9e44;border-radius:2px"></div>
+            <div style="position:absolute;top:8px;left:90px;width:5px;height:16px;background:#81c784;border-radius:1px"></div>
+            <div style="position:absolute;top:5px;left:130px;width:7px;height:22px;background:#40c057;border-radius:1px"></div>
+          </div>
+          <p style="color:#adb5bd;font-size:11px;margin-top:6px">BoxGeometry 堆叠、直角边缘</p>
+        </div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">目标：有机形态岛屿</div>
+      <div class="mockup-body">
+        <div style="background:#1a1b2e;padding:24px;text-align:center">
+          <svg width="180" height="140" viewBox="0 0 180 140">
+            <ellipse cx="90" cy="30" rx="80" ry="16" fill="#66bb6a"/>
+            <path d="M10,30 Q0,90 30,110 Q60,125 90,128 Q120,125 150,110 Q180,90 170,30" fill="#8B6B4A"/>
+            <path d="M10,30 Q15,70 35,95 Q65,112 90,115 Q115,112 145,95 Q165,70 170,30" fill="#a0896e" opacity="0.5"/>
+            <path d="M20,30 Q25,65 40,85 Q68,100 90,102 Q112,100 140,85 Q155,65 160,30" fill="#6d4c41" opacity="0.3"/>
+            <ellipse cx="90" cy="28" rx="78" ry="14" fill="#81c784"/>
+            <ellipse cx="90" cy="28" rx="72" ry="12" fill="#a5d6a7" opacity="0.4"/>
+          </svg>
+          <p style="color:#74b816;font-size:11px;margin-top:6px">不规则椭圆截面 + 分层泥土 + 曲面草地</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>岛屿改进方案</h3>
+
+  <div class="options" data-multiselect>
+    <div class="option" data-choice="shape" onclick="toggleSelect(this)">
+      <div class="letter">1</div>
+      <div class="content">
+        <h3>不规则椭圆截面（推荐）</h3>
+        <p>用 ExtrudeGeometry + 自定义 Shape 替换 BoxGeometry 堆叠。<br/>
+        形状：椭圆 + 2-3 层 Perlin/正弦扰动 → 自然切割面</p>
+      </div>
+    </div>
+    <div class="option" data-choice="layers" onclick="toggleSelect(this)">
+      <div class="letter">2</div>
+      <div class="content">
+        <h3>泥土分层纹理</h3>
+        <p>截面三层：表层深棕 → 中层浅棕 → 底层灰石。<br/>
+        用 MeshStandardMaterial + roughness map 替代纯色</p>
+      </div>
+    </div>
+    <div class="option" data-choice="edge-details" onclick="toggleSelect(this)">
+      <div class="letter">3</div>
+      <div class="content">
+        <h3>边缘细节：碎石 + 草根</h3>
+        <p>岛屿侧面随机散布小碎石（icosahedron）和垂下的草根（细圆柱体）<br/>
+        打破光滑边缘，增加自然感</p>
+      </div>
+    </div>
+    <div class="option" data-choice="bottom-roots" onclick="toggleSelect(this)">
+      <div class="letter">4</div>
+      <div class="content">
+        <h3>岛底悬垂物</h3>
+        <p>底部垂下树根、藤蔓、钟乳石状泥土<br/>
+        用随机锥形体沿底面分布</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>草地装饰细节</h3>
+  <div class="options" data-multiselect>
+    <div class="option" data-choice="grass-tufts" onclick="toggleSelect(this)">
+      <div class="letter">5</div>
+      <div class="content">
+        <h3>草丛 / 小花</h3>
+        <p>岛面散布小草丛（ConeGeometry 矮圆锥 + 随机颜色小花瓣）<br/>
+        每棵树下 3-5 簇，颜色随机</p>
+      </div>
+    </div>
+    <div class="option" data-choice="mushrooms" onclick="toggleSelect(this)">
+      <div class="letter">6</div>
+      <div class="content">
+        <h3>小蘑菇装饰</h3>
+        <p>树根部偶尔放置低多边形蘑菇（cap + stem）<br/>
+        治愈系点睛，不需要太多</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>推荐优先级</h3>
+  <div style="background:#f0fff4;padding:16px;border-radius:8px;border:1px solid #40c057">
+    <table style="width:100%;font-size:13px;border-collapse:collapse">
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>1. 椭圆截面</strong></td><td style="padding:6px;color:#40c057">必做</td>
+        <td style="padding:6px;color:#666">方形→圆形是最直观的改进</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>2. 泥土分层</strong></td><td style="padding:6px;color:#40c057">必做</td>
+        <td style="padding:6px;color:#666">用不同材质颜色即可，成本低</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>3. 边缘碎石</strong></td><td style="padding:6px;color:#f59f00">推荐</td>
+        <td style="padding:6px;color:#666">InstancedMesh 几十个小石头</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>5. 草丛小花</strong></td><td style="padding:6px;color:#f59f00">推荐</td>
+        <td style="padding:6px;color:#666">InstancedMesh，数量可控</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>4. 岛底悬垂</strong></td><td style="padding:6px;color:#adb5bd">可选</td>
+        <td style="padding:6px;color:#666">正常视角看不太到</td>
+      </tr>
+      <tr>
+        <td style="padding:6px"><strong>6. 小蘑菇</strong></td><td style="padding:6px;color:#adb5bd">可选</td>
+        <td style="padding:6px;color:#666">锦上添花</td>
+      </tr>
+    </table>
+  </div>
+</div>

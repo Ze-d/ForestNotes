@@ -1,0 +1,137 @@
+<h2>背景天空 & 光照氛围</h2>
+<p class="subtitle">P2-P3：当前纯色暗蓝背景 → 治愈系柔和氛围</p>
+
+<div class="section">
+  <h3>当前 vs 目标</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">当前：纯色 #1a1b2e</div>
+      <div class="mockup-body">
+        <div style="background:#1a1b2e;height:160px;display:flex;align-items:center;justify-content:center">
+          <p style="color:#adb5bd">单一暗蓝色背景</p>
+        </div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">目标：渐变天空 + 柔和雾 + 远景元素</div>
+      <div class="mockup-body">
+        <div style="background:linear-gradient(180deg,#1a1b3e 0%,#252850 30%,#3a4a70 60%,#4a6078 80%,#5a7a80 100%);height:160px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:15px;left:30px;width:2px;height:2px;background:white;border-radius:50%;box-shadow:0 0 3px white"></div>
+          <div style="position:absolute;top:40px;left:80px;width:1px;height:1px;background:white;border-radius:50%"></div>
+          <div style="position:absolute;top:25px;left:150px;width:1.5px;height:1.5px;background:white;border-radius:50%"></div>
+          <div style="position:absolute;top:60px;left:200px;width:1px;height:1px;background:white;border-radius:50%"></div>
+          <div style="position:absolute;top:20px;left:240px;width:2px;height:2px;background:white;border-radius:50%;box-shadow:0 0 2px white"></div>
+          <div style="position:absolute;top:50px;left:300px;width:1px;height:1px;background:white;border-radius:50%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>天空 & 背景方案</h3>
+  <div class="options" data-multiselect>
+    <div class="option" data-choice="sky-gradient" onclick="toggleSelect(this)">
+      <div class="letter">1</div>
+      <div class="content">
+        <h3>天空渐变（推荐）</h3>
+        <p>scene.background 改为渐变纹理：深蓝紫顶 → 柔和蓝灰中 → 暖灰绿底<br/>
+        <strong>实现：</strong>Canvas 生成渐变贴图 → CanvasTexture → scene.background</p>
+      </div>
+    </div>
+    <div class="option" data-choice="stars" onclick="toggleSelect(this)">
+      <div class="letter">2</div>
+      <div class="content">
+        <h3>星空粒子</h3>
+        <p>背景散布 30-50 个低亮星点。<br/>
+        <strong>实现：</strong>PointsMaterial + BufferGeometry，random positions in sky</p>
+      </div>
+    </div>
+    <div class="option" data-choice="clouds" onclick="toggleSelect(this)">
+      <div class="letter">3</div>
+      <div class="content">
+        <h3>低多边形云朵</h3>
+        <p>背景添加 2-3 朵静态低多边形云（几个球体合并）<br/>
+        <strong>实现：</strong>SphereGeometry 4-5个拼成云形状，放在天空层</p>
+      </div>
+    </div>
+    <div class="option" data-choice="far-islands" onclick="toggleSelect(this)">
+      <div class="letter">4</div>
+      <div class="content">
+        <h3>远景悬浮岛（推荐）</h3>
+        <p>远处 2-3 个小岛剪影，增加景深感。<br/>
+        <strong>实现：</strong>远处放置小椭圆体，暗色 silhouette，添加 fog 淡出</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>光照 & 氛围</h3>
+  <div class="options" data-multiselect>
+    <div class="option" data-choice="warm-lighting" onclick="toggleSelect(this)">
+      <div class="letter">5</div>
+      <div class="content">
+        <h3>治愈系暖色调（推荐）</h3>
+        <p>调整灯光颜色：Ambient 暖绿 → Hemisphere 暖黄+绿 → Directional 暖金色<br/>
+        <strong>当前：</strong>冷色调 ambient #668866 → <strong>目标：</strong>暖色调 ambient #889966</p>
+      </div>
+    </div>
+    <div class="option" data-choice="soft-shadows" onclick="toggleSelect(this)">
+      <div class="letter">6</div>
+      <div class="content">
+        <h3>柔和阴影</h3>
+        <p>调整 shadow map：PCFSoft → 降低 shadowBias、增大 shadow map size<br/>
+        <strong>当前：</strong>PCFSoftShadowMap 1024×1024 → <strong>目标：</strong>2048×2048</p>
+      </div>
+    </div>
+    <div class="option" data-choice="fog" onclick="toggleSelect(this)">
+      <div class="letter">7</div>
+      <div class="content">
+        <h3>雾效优化</h3>
+        <p>调整 fog 参数使远景元素柔和淡出，而非突兀消失。<br/>
+        <strong>当前：</strong>Fog(#1a1b2e, 15, 40) → <strong>目标：</strong>Fog(match sky bottom, 12, 35)</p>
+      </div>
+    </div>
+    <div class="option" data-choice="particles" onclick="toggleSelect(this)">
+      <div class="letter">8</div>
+      <div class="content">
+        <h3>粒子效果（萤火虫/花粉）</h3>
+        <p>岛上空漂浮 20-40 个缓慢移动的发光粒子。<br/>
+        <strong>实现：</strong>PointsMaterial + 动画更新 y 位置（上下漂浮）+ 透明度闪烁</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>推荐优先级</h3>
+  <div style="background:#f0fff4;padding:16px;border-radius:8px;border:1px solid #40c057">
+    <table style="width:100%;font-size:13px;border-collapse:collapse">
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>1. 天空渐变</strong></td><td style="padding:6px;color:#40c057">必做</td><td style="padding:6px;color:#666">纯色→渐变，效果立竿见影</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>5. 暖色调</strong></td><td style="padding:6px;color:#40c057">必做</td><td style="padding:6px;color:#666">冷→暖，治愈系核心</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>7. 雾效</strong></td><td style="padding:6px;color:#40c057">必做</td><td style="padding:6px;color:#666">配合天空渐变色</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>4. 远景岛</strong></td><td style="padding:6px;color:#f59f00">推荐</td><td style="padding:6px;color:#666">景深感提升大</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>2. 星空</strong></td><td style="padding:6px;color:#f59f00">推荐</td><td style="padding:6px;color:#666">代码简单</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>6. 柔和阴影</strong></td><td style="padding:6px;color:#f59f00">推荐</td><td style="padding:6px;color:#666">参数调整</td>
+      </tr>
+      <tr style="border-bottom:1px solid #dee2e6">
+        <td style="padding:6px"><strong>8. 粒子</strong></td><td style="padding:6px;color:#adb5bd">可选</td><td style="padding:6px;color:#666">锦上添花</td>
+      </tr>
+      <tr>
+        <td style="padding:6px"><strong>3. 云朵</strong></td><td style="padding:6px;color:#adb5bd">可选</td><td style="padding:6px;color:#666">与低多边形风格匹配</td>
+      </tr>
+    </table>
+  </div>
+</div>
