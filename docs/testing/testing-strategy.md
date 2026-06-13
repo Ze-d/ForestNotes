@@ -17,7 +17,8 @@
 | `core/markdown/stats.ts` | 11 | ✅ |
 | `core/markdown/parser.ts` | 20 | ✅ |
 | `core/forest/engine.ts` | 21 | ✅ |
-| **Total** | **70** | ✅ |
+| `components/forest/treeRenderer.ts` | 13 | ✅ |
+| **Total** | **83** | ✅ |
 
 ## Test Conventions
 

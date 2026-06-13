@@ -22,33 +22,45 @@
 
 | 文件 | 说明 |
 |------|------|
-| [Canvas Forest Redesign Spec](superpowers/specs/2026-06-12-canvas-forest-redesign.md) | Canvas 分形树 → Three.js 3D 悬浮岛设计演进 |
-| [Canvas Forest Implementation Plan](superpowers/plans/2026-06-12-canvas-forest-redesign.md) | 原 Canvas 重设计的 5-task 实施计划（已执行完毕） |
-| [Forest View Optimizations](specs/forest-view-optimizations.md) | 3D 森林待优化清单（缩放、美术、场景） |
+| [forest-view-optimizations.md](specs/forest-view-optimizations.md) | 3D 森林待优化清单（缩放、美术、场景） |
+| [Forest 3D Optimizations Plan](superpowers/plans/2026-06-13-forest-3d-optimizations.md) | 3D 优化实施计划（当前活跃） |
 
 ## 架构 (Architecture)
 
 | 文件 | 说明 |
 |------|------|
 | [overview.md](architecture/overview.md) | 技术栈、模块结构、数据流、目录结构 |
-| [adr/](architecture/adr/) | 架构决策记录（待填充） |
 
 ## 测试 (Testing)
 
 | 文件 | 说明 |
 |------|------|
-| [testing-strategy.md](testing/testing-strategy.md) | 测试分层、工具、当前覆盖、70+ tests |
+| [testing-strategy.md](testing/testing-strategy.md) | 测试分层、工具、当前覆盖、83 tests |
 | [tdd-guide.md](testing/tdd-guide.md) | Red-Green-Refactor 循环 + 命名规范 + ForestNotes 实例 |
 | [test-data.md](testing/test-data.md) | 测试数据规范和 fixtures 目录约定 |
+
+## 工作流 (Workflows)
+
+| 文件 | 说明 |
+|------|------|
+| [pre-pr-workflow.md](workflows/pre-pr-workflow.md) | PR 前完整检查流程：lint → tsc → test → build → cargo（含代码质量/数据安全/MVP 边界检查） |
 
 ## AI 开发 (AI Development)
 
 | 文件 | 说明 |
 |------|------|
-| [claudecode-prompt.md](ai/claudecode-prompt.md) | ClaudeCode 启动 Prompt — 项目目标、技术栈、架构原则 |
-| [coding-rules.md](ai/coding-rules.md) | 编码规范：TypeScript/React/Rust/CSS/Git |
+| [coding-rules.md](ai/coding-rules.md) | 编码规范：TypeScript / React / Rust / CSS / Git |
 | [context-map.md](ai/context-map.md) | 关键文件索引 — 所有 Rust/TS 模块及职责 |
-| [review-checklist.md](ai/review-checklist.md) | 提交前/合并前检查清单 |
+
+## 归档 (Archive)
+
+历史设计文档和已执行完毕的计划，保留供参考。
+
+| 文件 | 说明 |
+|------|------|
+| [claudecode-prompt.md](archive/claudecode-prompt.md) | 项目启动时的 ClaudeCode Prompt（Phase 0 引导） |
+| [Canvas Forest Redesign Spec](archive/2026-06-12-canvas-forest-redesign.md) | Canvas 2D 分形树设计（已被 Three.js 3D 方案取代） |
+| [Canvas Forest Implementation Plan](archive/2026-06-12-canvas-forest-redesign-plan.md) | Canvas 重设计 5-task 实施计划（已执行完毕） |
 
 ---
 
@@ -69,20 +81,3 @@
 | Note-taking Tools Comparison.md | note-taking, productivity, knowledge-management, markdown |
 | React and TypeScript Setup.md | react, typescript, web-development, programming |
 | TypeScript Best Practices.md | typescript, programming, web-development |
-
----
-
-## 文档统计
-
-```
-类型           数量
-────────────────────
-入口文档        2   (README.md, AGENTS.md)
-规格说明        4   (product, database, forest-engine, tasks)
-设计文档        3   (canvas-redesign ×2, optimizations)
-架构文档        1   (overview)
-测试文档        3   (strategy, tdd-guide, test-data)
-AI 开发文档      4   (prompt, rules, context-map, checklist)
-演示数据       11   (sample-vault notes + README)
-总计           28
-```

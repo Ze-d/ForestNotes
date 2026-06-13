@@ -41,6 +41,6 @@
 | [src/core/forest/engine.ts](../../src/core/forest/engine.ts) | Forest metric algorithms (health, size, co-occurrence) |
 | [src/components/layout/](../../src/components/layout/) | TopBar, Sidebar, DetailPanel, NotesView, ErrorBoundary |
 | [src/components/editor/](../../src/components/editor/) | EditorPanel, MarkdownEditor (CodeMirror 6) |
-| [src/components/forest/](../../src/components/forest/) | ForestView, ForestCanvas (D3), ForestDetailPanel |
+| [src/components/forest/](../../src/components/forest/) | ForestView, ForestCanvas (Three.js 3D), ForestDetailPanel |
 | [src/components/search/](../../src/components/search/) | SearchPanel (FTS5 results) |
 | [src/components/settings/](../../src/components/settings/) | SettingsPanel |
